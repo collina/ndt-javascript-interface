@@ -2,16 +2,6 @@ if (typeof simulate === 'undefined') {
   var simulate = false;
 }
 
-$(function(){
-  jQuery.fx.interval = 50;
-  if (simulate) {
-    setTimeout(initializeTest, 1000);
-    return;
-  }
-  checkInstalledPlugins();
-  initializeTest();
-});
-
 // CONSTANTS
 
 // Testing phases
@@ -33,6 +23,7 @@ var transitionSpeed = 400;
 
 // A front-end implementation could define some specific server. If not, then
 // just use the current server's hostname.
+
 if (typeof window.ndtServer === 'undefined') {
   var ndtServer = location.hostname;
 }

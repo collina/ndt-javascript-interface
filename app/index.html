@@ -6,17 +6,18 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>My AngularJS App</title>
+  <title>Measurement Lab</title>
   <meta name="description" content="">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="bower_components/html5-boilerplate/dist/css/normalize.css">
   <link rel="stylesheet" href="bower_components/html5-boilerplate/dist/css/main.css">
+  <link type="text/css" rel="stylesheet" href="assets/css/style.css">
   <link rel="stylesheet" href="app.css">
   <script src="bower_components/html5-boilerplate/dist/js/vendor/modernizr-2.8.3.min.js"></script>
 </head>
 <body>
   <ul class="menu">
-    <li><a href="#!/view1">view1</a></li>
+    <li><a href="#!/measure">measure</a></li>
   </ul>
 
   <!--[if lt IE 7]>
@@ -24,8 +25,17 @@
   <![endif]-->
 
   <div ng-view></div>
+  <span app-version></span>
 
-  <div>Angular seed app: v<span app-version></span></div>
+  <script>
+    window.CANV_GAUGE_FONTS_PATH = 'assets/fonts';
+    window.ndtServer = 'ndt.iupui.mlab1.iad01.measurement-lab.org';
+  </script>
+  <script type="text/javascript" src="assets/js/jquery-1.12.1.min.js"></script>
+  <script type="text/javascript" src="assets/js/gauge.min.js"></script>
+  <script type="text/javascript" src="assets/js/ndt-controller.js"></script>
+  <script type="text/javascript" src="assets/js/ndt-browser-client.js"></script>
+  <script type="text/javascript" src="assets/js/ndt-wrapper.js"></script>
 
   <!-- In production use:
   <script src="//ajax.googleapis.com/ajax/libs/angularjs/x.x.x/angular.min.js"></script>
@@ -33,9 +43,10 @@
   <script src="bower_components/angular/angular.js"></script>
   <script src="bower_components/angular-route/angular-route.js"></script>
   <script src="app.js"></script>
-  <script src="view1/view1.js"></script>
+  <script src="measure/measure.js"></script>
   <script src="components/version/version.js"></script>
   <script src="components/version/version-directive.js"></script>
   <script src="components/version/interpolate-filter.js"></script>
+
 </body>
 </html>
