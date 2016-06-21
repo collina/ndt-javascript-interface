@@ -18,12 +18,12 @@ function NDTWrapper(server) {
      * which doesn't support web workers using websockets. This should be
      * migrated into something more sane (e.g. a function that spawns an inline worker that
      * creates a websocket, and returns true/false if that succeeds */
-    var isFirefox = typeof InstallTrigger !== 'undefined';     
+    var isFirefox = typeof InstallTrigger !== 'undefined';
     var supportsWebWorkers = !!window.Worker;
 
-    if (supportsWebWorkers) {
-      this.use_web_worker = true;
-    }
+    // if (supportsWebWorkers) {
+    //   this.use_web_worker = true;
+    // }
 
     if (isFirefox) {
       this.use_web_worker = false;

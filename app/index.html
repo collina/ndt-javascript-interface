@@ -1,52 +1,70 @@
-<!DOCTYPE html>
-<!--[if lt IE 7]>      <html lang="en" ng-app="myApp" class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
-<!--[if IE 7]>         <html lang="en" ng-app="myApp" class="no-js lt-ie9 lt-ie8"> <![endif]-->
-<!--[if IE 8]>         <html lang="en" ng-app="myApp" class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]><!--> <html lang="en" ng-app="myApp" class="no-js"> <!--<![endif]-->
-<head>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>Measurement Lab</title>
-  <meta name="description" content="">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="bower_components/html5-boilerplate/dist/css/normalize.css">
-  <link rel="stylesheet" href="bower_components/html5-boilerplate/dist/css/main.css">
-  <link type="text/css" rel="stylesheet" href="assets/css/style.css">
-  <link rel="stylesheet" href="app.css">
-  <script src="bower_components/html5-boilerplate/dist/js/vendor/modernizr-2.8.3.min.js"></script>
-</head>
-<body>
-  <ul class="menu">
-    <li><a href="#!/measure">measure</a></li>
-  </ul>
+<!DOCTYPE HTML>
+<!--
+	Hyperspace by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html ng-app="Measure">
+	<head>
+		<title>Speed Test by Measurement Lab</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<script src="bower_components/html5-boilerplate/dist/js/vendor/modernizr-2.8.3.min.js"></script>
+	</head>
+	<body>
 
-  <!--[if lt IE 7]>
-      <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
-  <![endif]-->
+		<!-- Sidebar -->
+		<section id="sidebar">
+			<div class="inner">
+				<nav>
+					<ul>
+						<li><a href="#intro">Measure</a></li>
+						<li><a href="#about">About</a></li>
+						<li><a href="#contact">Contact</a></li>
+					</ul>
+				</nav>
+			</div>
+		</section>
 
-  <div ng-view></div>
-  <span app-version></span>
+		<!-- Wrapper -->
+		<div id="wrapper" ng-view></div>
 
-  <script>
-    window.CANV_GAUGE_FONTS_PATH = 'assets/fonts';
-    window.ndtServer = 'ndt.iupui.mlab1.iad01.measurement-lab.org';
-  </script>
-  <script type="text/javascript" src="assets/js/jquery-1.12.1.min.js"></script>
-  <script type="text/javascript" src="assets/js/gauge.min.js"></script>
-  <script type="text/javascript" src="assets/js/ndt-controller.js"></script>
-  <script type="text/javascript" src="assets/js/ndt-browser-client.js"></script>
-  <script type="text/javascript" src="assets/js/ndt-wrapper.js"></script>
+		<!-- Footer -->
+		<footer id="footer" class="wrapper style1-alt">
+			<div class="inner">
+				<ul class="menu">
+					<li>Measurement Lab</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+				</ul>
+			</div>
+		</footer>
 
-  <!-- In production use:
-  <script src="//ajax.googleapis.com/ajax/libs/angularjs/x.x.x/angular.min.js"></script>
-  -->
-  <script src="bower_components/angular/angular.js"></script>
-  <script src="bower_components/angular-route/angular-route.js"></script>
-  <script src="app.js"></script>
-  <script src="measure/measure.js"></script>
-  <script src="components/version/version.js"></script>
-  <script src="components/version/version-directive.js"></script>
-  <script src="components/version/interpolate-filter.js"></script>
+		<!-- Scripts -->
 
-</body>
+		<script src="bower_components/angular/angular.js"></script>
+	  <script src="bower_components/angular-route/angular-route.js"></script>
+	  <script src="bower_components/angular-gettext/dist/angular-gettext.min.js"></script>
+	  <script src="bower_components/jquery/dist/jquery.min.js"></script>
+		<script src="bower_components/bernii/gauge.js/dist/gauge.min.js"></script>
+		<script src="bower_components/angular-gaugejs/src/angular-gauge.js"></script>
+
+		<script src="assets/js/jquery.scrollex.min.js"></script>
+		<script src="assets/js/jquery.scrolly.min.js"></script>
+		<script src="assets/js/skel.min.js"></script>
+		<script src="assets/js/util.js"></script>
+		<script src="assets/js/main.js"></script>
+
+	  <script type="text/javascript" src="assets/js/ndt-controller.js"></script>
+	  <script type="text/javascript" src="assets/js/ndt-browser-client.js"></script>
+	  <script type="text/javascript" src="assets/js/ndt-wrapper.js"></script>
+
+	  <script type="text/javascript" src="assets/translations/nl.js"></script>
+
+		<script src="measure/measure.js"></script>
+		<script src="services/mlabService.js"></script>
+	  <script src="app.js"></script>
+
+		<link rel="stylesheet" href="assets/css/circular-progress-style.css" />
+
+	</body>
 </html>

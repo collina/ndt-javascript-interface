@@ -2,6 +2,7 @@ if (typeof simulate === 'undefined') {
   var simulate = false;
 }
 
+var allowDebug = true;
 // CONSTANTS
 
 // Testing phases
@@ -42,11 +43,6 @@ function initializeTest() {
   // Initialize start buttons
   $('.start.button').click(startTest);
 
-  // Results view selector
-  $('#results .view-selector .summary').click(showResultsSummary);
-  $('#results .view-selector .details').click(showResultsDetails);
-  $('#results .view-selector .advanced').click(showResultsAdvanced);
-
   $('body').removeClass('initializing');
   $('body').addClass('ready');
   //return showPage('results');
@@ -54,18 +50,13 @@ function initializeTest() {
 }
 
 function startTest(evt) {
-  evt.stopPropagation();
-  evt.preventDefault();
+  // evt.stopPropagation();
+  // evt.preventDefault();
   createBackend();
   if (!isPluginLoaded()) {
     $('#warning-plugin').show();
     return;
   }
-  $('#warning-plugin').hide();
-  $('#javaButton').attr('disabled', true);
-  $('#websocketButton').attr('disabled', true);
-  showPage('test', resetGauges);
-  $('#rttValue').html('');
   if (simulate) return simulateTest();
   currentPhase = PHASE_WELCOME;
   testNDT().run_test(ndtServer);
@@ -137,15 +128,14 @@ function setPhase(phase) {
       break;
 
     case PHASE_PREPARING:
-      uploadGauge.setValue(0);
-      downloadGauge.setValue(0);
+      // uploadGauge.setValue(0);
+      // downloadGauge.setValue(0);
       debug('PREPARING TEST');
 
       $('#loading').show();
       $('#upload').hide();
       $('#download').hide();
 
-      showPage('test', resetGauges);
       break;
 
     case PHASE_UPLOAD:
@@ -153,7 +143,7 @@ function setPhase(phase) {
       debug('UPLOAD TEST');
 
       pcBuffSpdLimit = speedLimit();
-      rtt = averageRoundTrip();
+      rtt = minRoundTrip();
 
       if (isNaN(rtt)) {
         $('#rttValue').html('n/a');
@@ -165,31 +155,26 @@ function setPhase(phase) {
         if (pcBuffSpdLimit > gaugeMaxValue) {
           pcBuffSpdLimit = gaugeMaxValue;
         }
-        gaugeConfig.push({
-          from: 0,   to: pcBuffSpdLimit, color: 'rgb(0, 255, 0)'
-        });
-
-        gaugeConfig.push({
-          from: pcBuffSpdLimit, to: gaugeMaxValue, color: 'rgb(255, 0, 0)'
-        });
-
-        uploadGauge.updateConfig({
-          highlights: gaugeConfig
-        });
-
-        downloadGauge.updateConfig({
-          highlights: gaugeConfig
-        });
+        // gaugeConfig.push({
+        //   from: 0,   to: pcBuffSpdLimit, color: 'rgb(0, 255, 0)'
+        // });
+        //
+        // gaugeConfig.push({
+        //   from: pcBuffSpdLimit, to: gaugeMaxValue, color: 'rgb(255, 0, 0)'
+        // });
+        //
+        // uploadGauge.updateConfig({
+        //   highlights: gaugeConfig
+        // });
+        //
+        // downloadGauge.updateConfig({
+        //   highlights: gaugeConfig
+        // });
       }
 
       $('#loading').hide();
       $('#upload').show();
 
-      gaugeUpdateInterval = setInterval(function(){
-        updateGaugeValue();
-      },1000);
-
-      $('#test .remote.location .address').get(0).innerHTML = remoteServer();
       break;
 
     case PHASE_DOWNLOAD:
@@ -205,11 +190,7 @@ function setPhase(phase) {
 
       printDownloadSpeed();
       printUploadSpeed();
-      $('#latency').html(printNumberValue(Math.round(averageRoundTrip())));
-      $('#jitter').html(printJitter(false));
-      $('#test-details').html(testDetails());
-      $('#test-advanced').append(testDiagnosis());
-      $('#javaButton').attr('disabled', false);
+      $('#latency').html(printNumberValue(Math.round(minRoundTrip())));
 
       showPage('results');
       break;
@@ -248,23 +229,6 @@ function showResultsSummary() {
   showResultsPage('summary');
 }
 
-function showResultsDetails() {
-  showResultsPage('details');
-}
-
-function showResultsAdvanced() {
-  showResultsPage('advanced');
-}
-
-function showResultsPage(page) {
-  debug('Results: show ' + page);
-  var pages = ['summary', 'details', 'advanced'];
-  for (var i=0, len=pages.length; i < len; i++) {
-    $('#results')[(page == pages[i]) ? 'addClass' : 'removeClass'](pages[i]);
-  }
-}
-
-
 // GAUGE
 
 function initializeGauges() {
@@ -273,70 +237,33 @@ function initializeGauges() {
   for (var i=0; i<=10; i++) {
     gaugeValues.push(0.1 * gaugeMaxValue * i);
   }
-  uploadGauge = new Gauge({
-    renderTo    : 'uploadGauge',
-    width       : 270,
-    height      : 270,
-    units       : 'Mb/s',
-    title       : 'Upload',
-    minValue    : 0,
-    maxValue    : gaugeMaxValue,
-    majorTicks  : gaugeValues,
-    highlights  : [{ from: 0, to: gaugeMaxValue, color: 'rgb(0, 255, 0)' }]
-  });;
+  // uploadGauge = new Gauge({
+  //   renderTo    : 'uploadGauge',
+  //   width       : 270,
+  //   height      : 270,
+  //   units       : 'Mb/s',
+  //   title       : 'Upload',
+  //   minValue    : 0,
+  //   maxValue    : gaugeMaxValue,
+  //   majorTicks  : gaugeValues,
+  //   highlights  : [{ from: 0, to: gaugeMaxValue, color: 'rgb(0, 255, 0)' }]
+  // });;
 
   gaugeValues = [];
   for (var i=0; i<=10; i++) {
     gaugeValues.push(0.1 * gaugeMaxValue * i);
   }
-  downloadGauge = new Gauge({
-    renderTo    : 'downloadGauge',
-    width       : 270,
-    height      : 270,
-    units       : 'Mb/s',
-    title       : 'Download',
-    minValue    : 0,
-    maxValue    : gaugeMaxValue,
-    majorTicks  : gaugeValues,
-    highlights  : [{ from: 0, to: gaugeMaxValue, color: 'rgb(0, 255, 0)' }]
-  });;
-}
-
-function resetGauges() {
-  var gaugeConfig = [];
-
-  gaugeConfig.push({
-    from: 0, to: gaugeMaxValue, color: 'rgb(0, 255, 0)'
-  });
-
-  uploadGauge.updateConfig({
-    highlights: gaugeConfig
-  });
-  uploadGauge.setValue(0);
-
-  downloadGauge.updateConfig({
-    highlights: gaugeConfig
-  });
-  downloadGauge.setValue(0);
-}
-
-function updateGaugeValue() {
-  var downloadSpeedVal = downloadSpeed();
-  var uploadSpeedVal = uploadSpeed(false);
-
-  if (currentPhase == PHASE_UPLOAD) {
-    uploadGauge.updateConfig({
-	  units: getSpeedUnit(uploadSpeedVal)
-	});
-	uploadGauge.setValue(getJustfiedSpeed(uploadSpeedVal));
-  } else if (currentPhase == PHASE_DOWNLOAD) {
-    downloadGauge.updateConfig({
-	  units: getSpeedUnit(downloadSpeedVal)
-	});
-    downloadGauge.setValue(getJustfiedSpeed(downloadSpeedVal));
-  } else {
-    clearInterval(gaugeUpdateInterval);
-  }
+  // downloadGauge = new Gauge({
+  //   renderTo    : 'downloadGauge',
+  //   width       : 270,
+  //   height      : 270,
+  //   units       : 'Mb/s',
+  //   title       : 'Download',
+  //   minValue    : 0,
+  //   maxValue    : gaugeMaxValue,
+  //   majorTicks  : gaugeValues,
+  //   highlights  : [{ from: 0, to: gaugeMaxValue, color: 'rgb(0, 255, 0)' }]
+  // });;
 }
 
 // TESTING JAVA/WEBSOCKET CLIENT
@@ -351,54 +278,6 @@ function testNDT() {
 
 function testStatus() {
   return testNDT().get_status();
-}
-
-function testDiagnosis() {
-  var div = document.createElement('div');
-
-  if (simulate) {
-    div.innerHTML = 'Test diagnosis';
-    return div;
-  }
-
-  var diagnosisArray = testNDT().get_diagnosis().split('\n');
-  var txt = '';
-  var table;
-  var isTable = false;
-
-  diagnosisArray.forEach(
-    function addRow(value) {
-      if (isTable) {
-        rowArray = value.split(':');
-        if (rowArray.length>1) {
-          var row = table.insertRow(-1);
-          rowArray.forEach(
-            function addCell(cellValue, idx) {
-              var cell =row.insertCell(idx);
-              cell.innerHTML = cellValue;
-            }
-          );
-        } else {
-          isTable = false;
-          txt = txt + value;
-        }
-      } else {
-        if (value.indexOf('=== Results sent by the server ===') != -1) {
-          table = document.createElement('table');
-          isTable = true;
-        } else {
-          txt = txt + value + '\n';
-        }
-      }
-    }
-  );
-  txt = txt + '=== Results sent by the server ===';
-  div.innerHTML = txt;
-  if (isTable) {
-    div.appendChild(table);
-  }
-
-  return div;
 }
 
 function testError() {
@@ -421,9 +300,9 @@ function downloadSpeed() {
   return parseFloat(testNDT().getNDTvar('ServerToClientSpeed'));
 }
 
-function averageRoundTrip() {
+function minRoundTrip() {
   if (simulate) return 0;
-  return parseFloat(testNDT().getNDTvar('avgrtt'));
+  return parseFloat(testNDT().getNDTvar('MinRTT'));
 }
 
 function jitter() {
@@ -440,17 +319,6 @@ function printPacketLoss() {
   var packetLoss = parseFloat(testNDT().getNDTvar('loss'));
   packetLoss = (packetLoss*100).toFixed(2);
   return packetLoss;
-}
-
-function printJitter(boldValue) {
-  var retStr = '';
-  var jitterValue = jitter();
-  if (jitterValue >= 1000) {
-    retStr += (boldValue ? '<b>' : '') + printNumberValue(jitterValue/1000) + (boldValue ? '</b>' : '') + ' sec';
-  } else {
-    retStr += (boldValue ? '<b>' : '') + printNumberValue(jitterValue) + (boldValue ? '</b>' : '') + ' msec';
-  }
-  return retStr;
 }
 
 function getSpeedUnit(speedInKB) {
@@ -485,108 +353,18 @@ function printNumberValue(value) {
   return isNaN(value) ? '-' : value;
 }
 
-function testDetails() {
-  if (simulate) return 'Test details';
-
-  var d = '';
-
-  var errorMsg = testError();
-  if (errorMsg.match(/failed/)) {
-    d += 'Error occured while performing test: <br>'.bold();
-    if (errorMsg.match(/#2048/)) {
-      d += 'Security error. This error may be caused by firewall issues, make sure that port 843 is available on the NDT server, and that you can access it.'.bold().fontcolor('red') + '<br><br>';
-    } else {
-      d += errorMsg.bold().fontcolor('red') + '<br><br>';
-    }
-  }
-
-  d += 'Your system: ' + readNDTvar('OperatingSystem').bold() + '<br>';
-  d += 'Plugin version: ' + (readNDTvar('PluginVersion') + ' (' + readNDTvar('OsArchitecture') + ')<br>').bold();
-
-  d += '<br>';
-
-  d += 'TCP receive window: ' + readNDTvar('CurRwinRcvd').bold() + ' current, ' + readNDTvar('MaxRwinRcvd').bold() + ' maximum<br>';
-  d += '<b>' + printNumberValue(printPacketLoss()) + '</b> % of packets lost during test<br>';
-  d += 'Round trip time: ' + readNDTvar('MinRTT').bold() + ' msec (minimum), ' + readNDTvar('MaxRTT').bold() + ' msec (maximum), <b>' + printNumberValue(Math.round(averageRoundTrip())) + '</b> msec (average)<br>';
-  d += 'Jitter: ' + printNumberValue(printJitter(true)) + '<br>';
-  d += readNDTvar('waitsec').bold() + ' seconds spend waiting following a timeout<br>';
-  d += 'TCP time-out counter: ' + readNDTvar('CurRTO').bold() + '<br>';
-  d += readNDTvar('SACKsRcvd').bold() + ' selective acknowledgement packets received<br>';
-
-  d += '<br>';
-
-  if (readNDTvar('mismatch') == 'yes') {
-    d += 'A duplex mismatch condition was detected.<br>'.fontcolor('red').bold();
-  }
-  else {
-    d += 'No duplex mismatch condition was detected.<br>'.fontcolor('green');
-  }
-
-  if (readNDTvar('bad_cable') == 'yes') {
-    d += 'The test detected a cable fault.<br>'.fontcolor('red').bold();
-  }
-  else {
-    d += 'The test did not detect a cable fault.<br>'.fontcolor('green');
-  }
-
-  if (readNDTvar('congestion') == 'yes') {
-    d += 'Network congestion may be limiting the connection.<br>'.fontcolor('red').bold();
-  }
-  else {
-    d += 'No network congestion was detected.<br>'.fontcolor('green');
-  }
-
-  d += '<br>';
-
-  d += printNumberValue(readNDTvar('cwndtime')).bold() + ' % of the time was not spent in a receiver limited or sender limited state.<br>';
-  d += printNumberValue(readNDTvar('rwintime')).bold() + ' % of the time the connection is limited by the client machine\'s receive buffer.<br>';
-  d += 'Optimal receive buffer: ' + printNumberValue(readNDTvar('optimalRcvrBuffer')).bold() + ' bytes<br>';
-  d += 'Bottleneck link: ' + readNDTvar('accessTech').bold() + '<br>';
-  d += readNDTvar('DupAcksIn').bold() + ' duplicate ACKs set<br>';
-
-  return d;
-}
-
 // BACKEND METHODS
-function useJavaAsBackend() {
-  $('#warning-websocket').hide();
-  $('#rtt').show();
-  $('#rttValue').show();
-
-  $('.warning-environment').innerHTML = '';
-
-  use_websocket_client = false;
-
-  $('#websocketButton').removeClass('active');
-  $('#javaButton').addClass('active');
-}
 
 function useWebsocketAsBackend() {
   $('#rtt').hide();
   $('#rttValue').hide();
-  $('#warning-websocket').show();
 
   use_websocket_client = true;
-
-  $('#javaButton').removeClass('active');
-  $('#websocketButton').addClass('active');
 }
 
 function createBackend() {
-  $('#backendContainer').empty();
-
   if (use_websocket_client) {
-    websocket_client = new NDTWrapper(window.ndtServer);
-  }
-  else {
-    var app = document.createElement('applet');
-    app.id = 'NDT';
-    app.name = 'NDT';
-    app.archive = 'Tcpbw100.jar';
-    app.code = 'edu.internet2.ndt.Tcpbw100.class';
-    app.width = '600';
-    app.height = '10';
-    $('#backendContainer').append(app);
+    websocket_client = new NDTWrapper(window.ndtServer.fqdn);
   }
 }
 
@@ -608,18 +386,10 @@ function isPluginLoaded() {
 }
 
 function checkInstalledPlugins() {
-  var hasJava = false;
   var hasWebsockets = false;
 
-  $('#warning-plugin').hide();
   $('#warning-websocket').hide();
 
-  hasJava = true;
-  if (typeof deployJava !== 'undefined') {
-    if (deployJava.getJREs() == '') {
-      hasJava = false;
-    }
-  }
   hasWebsockets = false;
   try {
     var ndt_js = new NDTjs();
@@ -630,19 +400,8 @@ function checkInstalledPlugins() {
     hasWebsockets = false;
   }
 
-  if (!hasWebsockets) {
-    $('#websocketButton').attr('disabled', true);
-  }
-
-  if (!hasJava) {
-    $('#javaButton').attr('disabled', true);
-  }
-
   if (hasWebsockets) {
     useWebsocketAsBackend();
-  }
-  else if (hasJava) {
-    useJavaAsBackend();
   }
 }
 

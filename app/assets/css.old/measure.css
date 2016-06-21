@@ -1,3 +1,22 @@
+.measureHeader .logo {
+  background: url('/assets/images/mlab-logo.png');
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 @font-face {
   font-family: "League Gothic";
   src: url("../fonts/League_Gothic.otf") format("opentype");
@@ -13,16 +32,17 @@ body {
   border: 0;
   overflow: hidden;
   height: 2000px;
+  background-color: #00aef0;
+
 }
 a img {
   border: 0;
 }
 #widget {
   position: relative;
-  width: 720px;
-  height: 480px;
+  margin-right: auto;
+  margin-left: auto;
   overflow: hidden;
-  background-color: black;
   color: white;
   text-transform: uppercase;
   font-size: 36px;
@@ -41,13 +61,7 @@ a img {
   margin: 5px;
 }
 .page {
-  width: 640px;
-  height: 420px;
-  position: absolute;
-  left: 0;
-  top: 0;
   padding: 40px;
-  background-color: #00aef0;
   color: #000;
 }
 #welcome {
@@ -57,7 +71,7 @@ a img {
   display: none;
 }
 #test {
-  background-color: #3cb878;
+
 }
 
 
@@ -112,11 +126,9 @@ h3 {
 }
 
 .active {
-  background-color:black;
 }
 
 .backendButton:disabled {
-  background-color:gray;
   cursor: default;
 }
 
